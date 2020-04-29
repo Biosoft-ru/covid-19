@@ -51,7 +51,7 @@ public class AgentDisease
 		contact.sourceId   = source.id;
 		contact.sourceType = AgentPerson.CONTACT;
 		
-		generateDiseasePath(contact, 0);
+		generateDiseasePath(contact, 1);
 		contact.illnessDay = -1;	// will be illed on next day
 		contact.state = AgentPerson.INCUBATION;
 		

@@ -1,5 +1,7 @@
 package ru.biosoft.covid19;
 
+import cern.colt.list.IntArrayList;
+
 public class AgentPerson 
 {
 	byte age;
@@ -27,6 +29,7 @@ public class AgentPerson
     
     int id;			// personId
     int sourceId;	// who infected
+    IntArrayList sources;  
     
     byte sourceType;
     public static final byte ARRIVED     = 1;
@@ -58,7 +61,6 @@ public class AgentPerson
 
     	Context.disease.infect(this);				// this person infects others
     	Context.healthcareSystem.process(this);		
-    	Context.observedPopulation.process(this, previousState);
     	Context.totalPopulation.process(this, previousState);
     }
 }

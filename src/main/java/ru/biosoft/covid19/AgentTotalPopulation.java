@@ -2,6 +2,8 @@ package ru.biosoft.covid19;
 
 import java.util.ArrayList;
 
+import cern.colt.list.IntArrayList;
+
 public class AgentTotalPopulation
 {
 	public static final double P_CONTACTS_REUSE       = 0.5;
@@ -18,7 +20,7 @@ public class AgentTotalPopulation
 	public int totallyRecovered;
 	public int totallyDead;
 
-	protected void generateContacts(AgentPerson contact, AgentPerson infectedPerson)
+	protected void generateContacts(AgentPerson contact, AgentPerson source)
 	{
 		int contactsNumber = contactsNumber(contact);
 		if( contactsNumber == 0 )
@@ -26,13 +28,14 @@ public class AgentTotalPopulation
 
 		// contact and infected person share some common contacts 
 		ArrayList<AgentPerson> contactsList = new ArrayList<AgentPerson>();
-		if( infectedPerson != null )
+		if( source != null )
 		{
-			for(AgentPerson c : infectedPerson.contacts )
+			for(AgentPerson c : source.contacts )
 			{
 				if( Random.getUniform() < P_CONTACTS_REUSE )
 				{
 					contactsList.add(c);
+					c.sources.add(contact.id);
 					contactsNumber--;
 				}
 			}
@@ -65,8 +68,13 @@ public class AgentTotalPopulation
 	    person.state         = AgentPerson.HEALTHY;
 	    person.diseasePath   = null; 
 	    person.illnessDay    = -1;
+	    
 	    person.sourceId      = source == null ? 0 : source.id;
 	    person.sourceType    = source == null ? AgentPerson.UNKNOWN : AgentPerson.CONTACT;
+	    person.sources       = new  IntArrayList();
+	    if( source != null )
+	    	person.sources.add(source.id);
+	    
 	    person.contacts      = null;
 	    person.selfIsolation = 0;
 	    person.isTested      = false;

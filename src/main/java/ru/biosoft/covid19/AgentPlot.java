@@ -20,6 +20,7 @@ public class AgentPlot
 {
 	XYSeriesCollection collection = new XYSeriesCollection();
     XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+    JFreeChart chart;
     
     static BasicStroke STROKE_DAHED = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10, new float[] {7, 3}, 0);
     
@@ -32,7 +33,8 @@ public class AgentPlot
 		collection.addSeries(new XYSeries("infected-sim"));
         
        
-        JFreeChart chart = ChartFactory.createXYLineChart("", "Time", "", collection, PlotOrientation.VERTICAL, true, // legend
+        chart = ChartFactory.createXYLineChart("", "Time", "", collection, PlotOrientation.VERTICAL, 
+        		true, // legend
                 true, // tool tips
                 false // URLs
         );
@@ -81,6 +83,8 @@ public class AgentPlot
     public void doStep()
     {
     	collection.getSeries("infected-sim").add( Context.scheduler.currentTime, 
-    											  Context.statCounter.dailyMap.get("dailyInfected").doubleValue() );	
+    											  Context.statCounter.dailyMap.get("dailyInfected").doubleValue(), true );
+    	
+    	chart.fireChartChanged();
     }
 }
