@@ -32,6 +32,8 @@ public class Covid19Main implements Runnable
     private PropertyInspector inspector = new PropertyInspector();
     private JScrollPane graphsPane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
+    private Context context = new Context();
+    
     public void run() 
 	{
         JFrame frame = new JFrame("Covid-19 agent based model");
@@ -67,7 +69,8 @@ public class Covid19Main implements Runnable
         });
         frame.setVisible(true);
 
-        inspector.explore(Context.modelParameters);
+        
+        inspector.explore(context.modelParameters);
         inspector.setPreferredSize(new Dimension(150, 300));
 
         startButton.addActionListener(e -> 
@@ -79,7 +82,8 @@ public class Covid19Main implements Runnable
         		String msg;
         		public String doInBackground() 		
         		{
-        			msg = Context.scheduler.run(); 
+        			context.init();
+        			msg = Context.scheduler.run(context); 
         			return msg; 
        			}
         		
@@ -90,7 +94,7 @@ public class Covid19Main implements Runnable
        			} 
    			};
    			
-   			task.execute();
+   			task.execute();  
         });
 
         stopButton.addActionListener(e -> 

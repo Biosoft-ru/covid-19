@@ -11,5 +11,16 @@ public class ModelParameters
 	protected DistributionAge ageDistribution = new DistributionAge();
 	public DistributionAge getAgeDistribution()			{ return ageDistribution;		}
 	public void setAgeDistribution(DistributionAge d)	{ ageDistribution = d;		}
+
+	private double pContactReuse = 0.5;
+	public double getPContactReuse()			{ return pContactReuse;		}
+	public void setPContactReuse(double v)		{ pContactReuse = v;		}
 	
+	private double pIsSuspectable = 0.8;
+	public double getPIsSuspectable()			{ return pIsSuspectable;	}
+	public void setPIsSuspectable(double v)		{ pIsSuspectable = v;		}
+	
+	private int populationSize = 1700000;
+	public int getPopulationSize()				{ return populationSize;	}
+	public void setPopulationSize(int v)		{ populationSize = v;		}
 }

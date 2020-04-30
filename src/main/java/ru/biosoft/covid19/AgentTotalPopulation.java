@@ -6,11 +6,9 @@ import cern.colt.list.IntArrayList;
 
 public class AgentTotalPopulation
 {
-	public static final double P_CONTACTS_REUSE       = 0.5;
-	public static final double P_IS_SUSPECTABLE       = 0.8;
-
-	public static final int POPULATION_SIZE = 1700000;
-	public int size = POPULATION_SIZE;
+	protected Context context;
+	
+	public int currentPopulationSize;
 	
 	public int dailyInfected;
 	public int dailyRecovered;
@@ -20,6 +18,12 @@ public class AgentTotalPopulation
 	public int totallyRecovered;
 	public int totallyDead;
 
+	protected void init(Context context)
+	{
+		this.context = context;
+		currentPopulationSize = context.modelParameters.getPopulationSize();
+	}
+	
 	protected void generateContacts(AgentPerson contact, AgentPerson source)
 	{
 		int contactsNumber = contactsNumber(contact);
@@ -32,8 +36,9 @@ public class AgentTotalPopulation
 		{
 			for(AgentPerson c : source.contacts )
 			{
-				if( Random.getUniform() < P_CONTACTS_REUSE )
+				if( Random.getUniform() < Context.modelParameters.getPContactReuse() )
 				{
+					
 					contactsList.add(c);
 					c.sources.add(contact.id);
 					contactsNumber--;
@@ -80,8 +85,8 @@ public class AgentTotalPopulation
 	    person.isTested      = false;
 	    person.isDetected    = false;
 	    
-	    person.hasImmunity   = Random.getUniform() < (double)totallyRecovered/size;
-	    person.isSuspectable = Random.getUniform() < P_IS_SUSPECTABLE;
+	    person.hasImmunity   = Random.getUniform() < (double)totallyRecovered/currentPopulationSize;
+	    person.isSuspectable = Random.getUniform() < Context.modelParameters.getPIsSuspectable();
 	    
 	    return person;
 	}

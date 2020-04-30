@@ -6,11 +6,17 @@ public class Context
 	static AgentDisease            	disease            = new AgentDisease();
 	static AgentHealthcareSystem   	healthcareSystem   = new AgentHealthcareSystem();
 	static AgentObservedPopulation 	observedPopulation = new AgentObservedPopulation();
-	static AgentTotalPopulation    	totalPopulation    = new AgentTotalPopulation();
+	static AgentTotalPopulation    	totalPopulation;
 	static AgentStatCounter        	statCounter        = new AgentStatCounter(); 		  	
 	static AgentPlot			   	plot               = new AgentPlot();
 	
 	static Scheduler 			   	scheduler          = new Scheduler();
 	static ModelParameters			modelParameters    = new ModelParameters();
 	static RealData					realData           = new RealData();
+	
+	public void init()
+	{
+		Context.totalPopulation =  new AgentTotalPopulation();
+		totalPopulation.init(this);
+	}
 }

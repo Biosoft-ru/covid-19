@@ -9,7 +9,7 @@ public class Scheduler
 	
 	protected boolean stop = false; 
 	
-	public String run()
+	public String run(Context context)
 	{
 		start = System.currentTimeMillis();
 		
