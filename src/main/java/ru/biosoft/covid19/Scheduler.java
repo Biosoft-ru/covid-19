@@ -11,26 +11,66 @@ public class Scheduler
 	
 	public String run(Context context)
 	{
-		start = System.currentTimeMillis();
-		
-		for(currentTime=0; currentTime<endTime; currentTime++)
+		try
 		{
-			if( stop )
+			start = System.currentTimeMillis();
+
+			int unsuspectibleCheck  = context.totalPopulation.currentUnsusceptible + context.observedPopulation.currentUnsusceptible;
+			int populationSizeCheck = context.totalPopulation.currentPopulationSize;
+
+			for(currentTime=0; currentTime<endTime; currentTime++)
 			{
-				stop = false;
-				break;
+				if( stop )
+				{
+					stop = false;
+					break;
+				}
+				
+				context.arrived.doStep();
+			
+				context.observedPopulation.doStep();
+				context.totalPopulation.doStep();
+				context.plot.doStep();
+				context.statCounter.doStep();
+				
+				// consistency check
+				if( unsuspectibleCheck != context.totalPopulation.currentUnsusceptible + context.observedPopulation.currentUnsusceptible )
+				System.out.println("Warn, unsuspectibleCheck=" + unsuspectibleCheck + " - " +
+						(context.totalPopulation.currentUnsusceptible + context.observedPopulation.currentUnsusceptible) +
+						", day=" + currentTime);
+			
+				int size = context.totalPopulation.currentHealthy 	+ context.totalPopulation.currentUnsusceptible + 
+						   context.totalPopulation.totallyRecovered	+ context.totalPopulation.totallyDead		+
+						   context.observedPopulation.persons.size() - context.totalPopulation.totallyArrived;
+				if( populationSizeCheck != size )
+				{
+					System.out.println("\r\nWarn, populationSizeCheck=" + (populationSizeCheck- size) + 
+							", day=" + currentTime);
+					
+					System.out.println("Total population: " + context.totalPopulation.currentHealthy + ", "	
+					                                        + context.totalPopulation.currentUnsusceptible + ", "
+					                                        + context.totalPopulation.totallyRecovered	+ ", " 
+					                                        + context.totalPopulation.totallyDead  
+					                                        + "\r\nPersons:" + context.observedPopulation.persons.size());
+/*					context.observedPopulation.personsList.forEach( (Object obj) ->
+					{
+						AgentPerson p = (AgentPerson)obj;
+						System.out.print(p.id + ":" + p.state + "; ");
+						return true;
+					});
+*/					
+				}
+				
 			}
 			
-			Context.arrived.doStep();
-	
-			Context.observedPopulation.doStep();
-			Context.totalPopulation.doStep();
-			Context.plot.doStep();
-			Context.statCounter.doStep();
+			return "<html>Simulation time: " + (System.currentTimeMillis() - start) + "<br>"  +
+				    "Population size: " + Context.observedPopulation.persons.size() + "</html>";
 		}
-		
-		return "<html>Simulation time: " + (System.currentTimeMillis() - start) + "<br>"  +
-			    "Population size: " + Context.observedPopulation.persons.size() + "</html>";
+		catch(Throwable t)
+		{
+			t.printStackTrace();
+			return "<html>Eror: " + t.getMessage() + "</html>";
+		}
 	}
 
 	public void terminate()

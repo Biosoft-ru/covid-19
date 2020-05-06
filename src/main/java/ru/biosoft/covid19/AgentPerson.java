@@ -8,13 +8,14 @@ public class AgentPerson
     boolean isMale;
     
     byte state;
-    public static final byte HEALTHY      = 0;
-    public static final byte INCUBATION   = 1;
-    public static final byte ILLNESS      = 2;
-    public static final byte HOSPITALIZED = 3;
-    public static final byte IN_ICU       = 4; 
-    public static final byte RECOVERED    = 5;
-    public static final byte DEAD         = 6;
+    public static final byte UNSUSCEPTIBLE = -1;
+    public static final byte HEALTHY       = 0;
+    public static final byte INCUBATION    = 1;
+    public static final byte ILLNESS       = 2;
+    public static final byte HOSPITALIZED  = 3;
+    public static final byte IN_ICU        = 4; 
+    public static final byte RECOVERED     = 5;
+    public static final byte DEAD          = 6;
 
     byte symptoms; 
     public static final byte SYMPTOMS_INCUBATION   = 1;
@@ -29,14 +30,14 @@ public class AgentPerson
     
     int id;			// personId
     int sourceId;	// who infected
-    IntArrayList sources;  
+    IntArrayList infectedContacts;  
     
     byte sourceType;
     public static final byte ARRIVED     = 1;
     public static final byte CONTACT     = 2;
     public static final byte UNKNOWN     = 3;
     
-    AgentPerson[] contacts;
+    AgentPerson[] nearestContacts;		
     
     byte selfIsolation;
     public static final byte WORK           = 2;	// can visit work, nearest marketplaces
@@ -46,12 +47,21 @@ public class AgentPerson
 
     boolean isTested;
     boolean isDetected;
-    boolean hasImmunity;
-    boolean isSuspectable;
+    boolean isIsolated;
 
+    public boolean canBeInfected()
+    {
+		return state == AgentPerson.HEALTHY; 
+    }
+
+    public boolean canInfect()
+    {
+    	return !isIsolated && (state == INCUBATION || state == ILLNESS);
+    }
+    
     public void doStep()
     {
-    	if( state==HEALTHY || illnessDay >= diseasePath.length-1 )
+    	if( state==UNSUSCEPTIBLE || state==HEALTHY || state==RECOVERED || state == DEAD || illnessDay >= diseasePath.length-1 )
     		return;
     	
     	illnessDay++;
@@ -62,5 +72,10 @@ public class AgentPerson
     	Context.disease.infect(this);				// this person infects others
     	Context.healthcareSystem.process(this);		
     	Context.totalPopulation.process(this, previousState);
+    }
+    
+    public String toString()
+    {
+    	return "\r\nPerson id=" + id + ", state=" + state;	
     }
 }

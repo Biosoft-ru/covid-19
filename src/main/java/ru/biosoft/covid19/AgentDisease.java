@@ -29,12 +29,12 @@ public class AgentDisease
 
 	protected void infectContacts(AgentPerson source)
 	{
-		if( source.contacts == null )
+		if( source.nearestContacts == null )
 			return;
 		
-		for(AgentPerson contact : source.contacts )
+		for(AgentPerson contact : source.nearestContacts )
 		{
-			if( contact.state == AgentPerson.HEALTHY && contact.isSuspectable && !contact.hasImmunity )
+			if( contact.canBeInfected() )
 				probablyInfectContact(contact, source);
 		}
 	}
@@ -48,6 +48,22 @@ public class AgentDisease
 		
 	protected void wasInfected(AgentPerson contact, AgentPerson source)
 	{
+		if( !Context.observedPopulation.persons.containsKey(contact.id) )
+		{
+//			System.out.print("\r\n!!! (" + source.id + "->" +  contact.id + ") - ");
+			Context.observedPopulation.persons.put(contact.id, contact);
+			
+			int a = Context.totalPopulation.totallyRecovered;
+			
+/*			
+			for(int i=0; i<source.nearestContacts.length; i++)
+			{
+				AgentPerson p = source.nearestContacts[i];
+				System.out.print(p.id + ":" + p.state + "; ");
+			}
+*/			
+		}
+
 		contact.sourceId   = source.id;
 		contact.sourceType = AgentPerson.CONTACT;
 		

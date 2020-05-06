@@ -3,6 +3,7 @@ package ru.biosoft.covid19;
 import java.util.ArrayList;
 
 import cern.colt.list.IntArrayList;
+import cern.colt.list.ObjectArrayList;
 
 public class AgentTotalPopulation
 {
@@ -10,50 +11,85 @@ public class AgentTotalPopulation
 	
 	public int currentPopulationSize;
 	
-	public int dailyInfected;
-	public int dailyRecovered;
-	public int dailyDead;
+	public int dailyInfected	= 0;
+	public int dailyRecovered	= 0;
+	public int dailyDead		= 0;
 	
-	public int totallyInfected;
-	public int totallyRecovered;
-	public int totallyDead;
+	public int totallyInfected	= 0;
+	public int totallyRecovered	= 0;
+	public int totallyDead		= 0;
+	public int totallyArrived   = 0;
 
+	public int currentHealthy;
+	public int currentUnsusceptible;
+	
+	
 	protected void init(Context context)
 	{
 		this.context = context;
 		currentPopulationSize = context.modelParameters.getPopulationSize();
+		
+		currentUnsusceptible = (int) (currentPopulationSize * (1.0 - context.modelParameters.getPIsSuspectable()));  
+		currentHealthy       = currentPopulationSize - currentUnsusceptible;
 	}
 	
-	protected void generateContacts(AgentPerson contact, AgentPerson source)
+	protected void generateContacts(AgentPerson infected, AgentPerson source)
 	{
-		int contactsNumber = contactsNumber(contact);
+		int contactsNumber = contactsNumber(infected);
 		if( contactsNumber == 0 )
 			return;
 
-		// contact and infected person share some common contacts 
 		ArrayList<AgentPerson> contactsList = new ArrayList<AgentPerson>();
+		
+		// contact and infected person share some common contacts 
 		if( source != null )
 		{
-			for(AgentPerson c : source.contacts )
+			for(AgentPerson c : source.nearestContacts )
 			{
-				if( Random.getUniform() < Context.modelParameters.getPContactReuse() )
+				if( infected.id != c.id && Random.getUniform() < Context.modelParameters.getPContactReuse() )
 				{
-					
-					contactsList.add(c);
-					c.sources.add(contact.id);
 					contactsNumber--;
+					contactsList.add(c);
+			    	c.infectedContacts.add(infected.id);
+			    	
+			    	if( contactsNumber <= 0 )
+			    		break;
 				}
 			}
 		}
 
-		// TO DO
-		// currently we neglect contacts in observed population
+		// calculate probability to get person from observed population
+		double p_reuseFromObserved = ((double)Context.observedPopulation.currentNotIsolated) /
+				(currentPopulationSize + Context.observedPopulation.persons.size());
+
+		int observedListSize = context.observedPopulation.personsList.size(); 
 		
-		// get contacts from total population
 		while(contactsNumber-- > 0)
-			contactsList.add(generatePerson(contact));
+		{
+			AgentPerson c = null;
+			if( p_reuseFromObserved > 0.05 && Random.getUniform() < p_reuseFromObserved )
+			{
+				int idx = Random.getUniform(1, observedListSize);
+				while( idx-- > 0 )
+				{
+					AgentPerson p = (AgentPerson)context.observedPopulation.personsList.get(idx);
+					if( !p.isIsolated && context.observedPopulation.persons.containsKey(p.id) )
+					{
+						c = p; 
+				    	c.infectedContacts.add(infected.id);
+						break;
+					}
+				}
+			}
 			
-		contact.contacts = contactsList.toArray(new AgentPerson[contactsList.size()]);
+			if( c== null )
+				c = generatePerson(infected, true);
+			
+			contactsList.add(c);
+		}
+		
+		
+		infected.nearestContacts = contactsList.toArray(new AgentPerson[contactsList.size()]);
 	}	
 
 	public int contactsNumber(AgentPerson person)
@@ -62,33 +98,38 @@ public class AgentTotalPopulation
 		return Random.getUniform(1, 10);
 	}
 
-	public AgentPerson generatePerson(AgentPerson source)
+	public AgentPerson generatePerson(AgentPerson source, boolean startObservation)
 	{
 		AgentPerson person = new AgentPerson();
-		Context.observedPopulation.addPerson(person);
 
+		if( Random.getUniform() < (double)currentHealthy/currentPopulationSize )
+			person.state = AgentPerson.HEALTHY;
+		else if( Random.getUniform() < (double)currentUnsusceptible/currentPopulationSize )
+			person.state = AgentPerson.UNSUSCEPTIBLE;
+		else
+			person.state = AgentPerson.RECOVERED;
+		
 		person.age    = Context.modelParameters.ageDistribution.generateAge(); 
 		person.isMale = (5 <= Random.getUniform(1, 10));
 	    
-	    person.state         = AgentPerson.HEALTHY;
 	    person.diseasePath   = null; 
 	    person.illnessDay    = -1;
 	    
 	    person.sourceId      = source == null ? 0 : source.id;
 	    person.sourceType    = source == null ? AgentPerson.UNKNOWN : AgentPerson.CONTACT;
-	    person.sources       = new  IntArrayList();
+	    person.infectedContacts = new  IntArrayList(1);
 	    if( source != null )
-	    	person.sources.add(source.id);
+	    	person.infectedContacts.add(source.id);
 	    
-	    person.contacts      = null;
-	    person.selfIsolation = 0;
-	    person.isTested      = false;
-	    person.isDetected    = false;
+	    person.nearestContacts  = null;
+	    person.selfIsolation   	= 0;
+	    person.isTested      	= false;
+	    person.isDetected    	= false;
 	    
-	    person.hasImmunity   = Random.getUniform() < (double)totallyRecovered/currentPopulationSize;
-	    person.isSuspectable = Random.getUniform() < Context.modelParameters.getPIsSuspectable();
-	    
-	    return person;
+	    if( startObservation )
+	    	Context.observedPopulation.startObservation(person);
+
+		return person;
 	}
 
 	public void process(AgentPerson person, byte previousState)

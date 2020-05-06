@@ -20,8 +20,7 @@ public class AgentImport
 		AgentPerson person;
 		while( arrived-- > 0 )
 		{
-			person = Context.totalPopulation.generatePerson(null);
-			Context.totalPopulation.generateContacts(person, null);
+			person = Context.totalPopulation.generatePerson(null, false);
 			Context.disease.generateDiseasePath(person, AgentDisease.SYMPTOMS_DELAY); 
 
 			person.state         = AgentPerson.INCUBATION;
@@ -34,11 +33,12 @@ public class AgentImport
 
 		    person.isTested      = false;
 		    person.isDetected    = false;
-		    
-		    person.hasImmunity   = false;
-		    person.isSuspectable = false;
-		    
+
+		    Context.observedPopulation.startObservation(person);
+
+		    Context.totalPopulation.generateContacts(person, null);
 			Context.totalPopulation.process(person, AgentPerson.HEALTHY);
+			Context.totalPopulation.totallyArrived++;
 		}
 	}
 }
