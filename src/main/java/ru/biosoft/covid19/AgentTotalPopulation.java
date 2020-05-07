@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import cern.colt.list.IntArrayList;
 import cern.colt.list.ObjectArrayList;
 
-public class AgentTotalPopulation
+public class AgentTotalPopulation extends Agent
 {
-	protected Context context;
-	
 	public int currentPopulationSize;
 	
 	public int dailyInfected	= 0;
@@ -24,13 +22,13 @@ public class AgentTotalPopulation
 	public int currentUnsusceptible;
 	
 	
-	protected void init(Context context)
+	public void init(Context context)
 	{
-		this.context = context;
+		super.init(context);
+
 		currentPopulationSize = context.modelParameters.getPopulationSize();
-		
-		currentUnsusceptible = (int) (currentPopulationSize * (1.0 - context.modelParameters.getPIsSuspectable()));  
-		currentHealthy       = currentPopulationSize - currentUnsusceptible;
+		currentUnsusceptible  = (int) (currentPopulationSize * (1.0 - context.modelParameters.getPIsSusceptible()));  
+		currentHealthy        = currentPopulationSize - currentUnsusceptible;
 	}
 	
 	protected void generateContacts(AgentPerson infected, AgentPerson source)
@@ -46,7 +44,7 @@ public class AgentTotalPopulation
 		{
 			for(AgentPerson c : source.nearestContacts )
 			{
-				if( infected.id != c.id && Random.getUniform() < Context.modelParameters.getPContactReuse() )
+				if( infected.id != c.id && Random.getUniform() < context.modelParameters.getPContactReuse() )
 				{
 					contactsNumber--;
 					contactsList.add(c);
@@ -59,8 +57,8 @@ public class AgentTotalPopulation
 		}
 
 		// calculate probability to get person from observed population
-		double p_reuseFromObserved = ((double)Context.observedPopulation.currentNotIsolated) /
-				(currentPopulationSize + Context.observedPopulation.persons.size());
+		double p_reuseFromObserved = ((double)context.observedPopulation.currentNotIsolated) /
+				(currentPopulationSize + context.observedPopulation.persons.size());
 
 		int observedListSize = context.observedPopulation.personsList.size(); 
 		
@@ -101,6 +99,7 @@ public class AgentTotalPopulation
 	public AgentPerson generatePerson(AgentPerson source, boolean startObservation)
 	{
 		AgentPerson person = new AgentPerson();
+	    person.init(context);
 
 		double availablePopulation = currentHealthy + currentUnsusceptible + totallyRecovered; 
 		double pHealthy   = currentHealthy/availablePopulation;
@@ -109,9 +108,10 @@ public class AgentTotalPopulation
 		if( random < pHealthy )
 			person.state = AgentPerson.HEALTHY;
 		else
-			person.state = AgentPerson.UNSUSCEPTIBLE;	// RECOVERED person we also consider here as UNSUSCEPTIBLE  
+			person.state = AgentPerson.UNSUSCEPTIBLE;	// RECOVERED person we also consider here as UNSUSCEPTIBLE
+														// otherwise recovered will be processed twice
 		
-		person.age    = Context.modelParameters.ageDistribution.generateAge(); 
+		person.age    = context.modelParameters.ageDistribution.generateAge(); 
 		person.isMale = (5 <= Random.getUniform(1, 10));
 	    
 	    person.diseasePath   = null; 
@@ -129,7 +129,7 @@ public class AgentTotalPopulation
 	    person.isDetected    	= false;
 	    
 	    if( startObservation )
-	    	Context.observedPopulation.startObservation(person);
+	    	context.observedPopulation.startObservation(person);
 
 		return person;
 	}
@@ -149,13 +149,13 @@ public class AgentTotalPopulation
 
 	public void doStep()
 	{
-		Context.statCounter.add("dailyInfected",  dailyInfected);
-		Context.statCounter.add("dailyRecovered", dailyRecovered);
-		Context.statCounter.add("dailyDead",      dailyDead);
+		context.statCounter.add("dailyInfected",  dailyInfected);
+		context.statCounter.add("dailyRecovered", dailyRecovered);
+		context.statCounter.add("dailyDead",      dailyDead);
 
-		Context.statCounter.add("totallyInfected",  totallyInfected  += dailyInfected);
-		Context.statCounter.add("totallyRecovered", totallyRecovered += dailyRecovered);
-		Context.statCounter.add("totallyDead",      totallyDead      += dailyDead);
+		context.statCounter.add("totallyInfected",  totallyInfected  += dailyInfected);
+		context.statCounter.add("totallyRecovered", totallyRecovered += dailyRecovered);
+		context.statCounter.add("totallyDead",      totallyDead      += dailyDead);
 		
 		// reset for new day
 		dailyInfected = dailyRecovered = dailyDead = 0;

@@ -1,6 +1,6 @@
 package ru.biosoft.covid19;
 
-public class AgentHealthcareSystem 
+public class AgentHealthcareSystem extends Agent
 {
 	byte mildSymptomsPolicy = MILD_SYMPTOMS_HOSPITALISE;   
 	public static final byte MILD_SYMPTOMS_HOSPITALISE = 1;

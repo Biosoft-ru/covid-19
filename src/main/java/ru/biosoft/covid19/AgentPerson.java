@@ -2,7 +2,7 @@ package ru.biosoft.covid19;
 
 import cern.colt.list.IntArrayList;
 
-public class AgentPerson 
+public class AgentPerson extends Agent
 {
 	byte age;
     boolean isMale;
@@ -69,9 +69,9 @@ public class AgentPerson
     	byte previousState = illnessDay == 0 ? HEALTHY : state; 
   	  	symptoms = diseasePath[illnessDay];
 
-    	Context.disease.infect(this);				// this person infects others
-    	Context.healthcareSystem.process(this);		
-    	Context.totalPopulation.process(this, previousState);
+    	context.disease.infect(this);				// this person infects others
+    	context.healthcareSystem.process(this);		
+    	context.totalPopulation.process(this, previousState);
     }
     
     public String toString()

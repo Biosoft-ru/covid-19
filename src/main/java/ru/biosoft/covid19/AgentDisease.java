@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import ru.biosoft.covid19.AgentPerson; 
 
-public class AgentDisease 
+public class AgentDisease extends Agent
 {
 	public static final double P_ASYMPTOMATIC = 0.5;
 			
@@ -48,12 +48,12 @@ public class AgentDisease
 		
 	protected void wasInfected(AgentPerson contact, AgentPerson source)
 	{
-		if( !Context.observedPopulation.persons.containsKey(contact.id) )
+		if( !context.observedPopulation.persons.containsKey(contact.id) )
 		{
 //			System.out.print("\r\n!!! (" + source.id + "->" +  contact.id + ") - ");
-			Context.observedPopulation.persons.put(contact.id, contact);
+			context.observedPopulation.persons.put(contact.id, contact);
 			
-			int a = Context.totalPopulation.totallyRecovered;
+			int a = context.totalPopulation.totallyRecovered;
 			
 /*			
 			for(int i=0; i<source.nearestContacts.length; i++)
@@ -71,7 +71,7 @@ public class AgentDisease
 		contact.illnessDay = -1;	// will be illed on next day
 		contact.state = AgentPerson.INCUBATION;
 		
-		Context.totalPopulation.generateContacts(contact, source);
+		context.totalPopulation.generateContacts(contact, source);
 		
 //System.out.print(" (" + source.id + "->" +  contact.id + ") ");		
 	}

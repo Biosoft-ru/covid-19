@@ -7,15 +7,14 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.io.CSV;
 import org.jfree.data.xy.XYSeries;
 
-public class RealData 
+public class RealData extends Agent
 {
-	String resource = "nsk.csv";
-//	String resource = "test.csv";
 	DefaultCategoryDataset data;
 	
-	public void init() 
+	public void init(Context context) 
 	{
-		data = readDataset(resource);
+		super.init(context);
+		data = readDataset( context.modelParameters.getRealDataName() );
 	}
 	
 	public XYSeries getSeries(String yName)

@@ -16,7 +16,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 
-public class AgentPlot 
+public class AgentPlot extends Agent
 {
 	XYSeriesCollection collection = new XYSeriesCollection();
     XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
@@ -26,8 +26,6 @@ public class AgentPlot
     
     public ChartPanel generatePlot()
     {
-    	Context.realData.init();
-
         // add real data
         smoothedRealData("infected");
 		collection.addSeries(new XYSeries("infected-sim"));
@@ -58,7 +56,7 @@ public class AgentPlot
 
     protected void smoothedRealData(String name)
     {
-    	XYSeries real     = Context.realData.getSeries(name);
+    	XYSeries real     = context.realData.getSeries(name);
     	XYSeries smoothed = RealData.smooth(real, 2);
     	
     	collection.addSeries(real);
@@ -82,8 +80,8 @@ public class AgentPlot
  
     public void doStep()
     {
-    	collection.getSeries("infected-sim").add( Context.scheduler.currentTime, 
-    											  Context.statCounter.dailyMap.get("dailyInfected").doubleValue(), true );
+    	collection.getSeries("infected-sim").add( context.scheduler.currentTime, 
+    											  context.statCounter.dailyMap.get("dailyInfected").doubleValue(), true );
     	
     	chart.fireChartChanged();
     }

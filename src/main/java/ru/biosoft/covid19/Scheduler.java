@@ -5,7 +5,6 @@ public class Scheduler
 	private long start;
 	
 	protected int currentTime = 0;
-	protected int endTime     = 500;
 	
 	protected boolean stop = false; 
 	
@@ -15,6 +14,8 @@ public class Scheduler
 		{
 			start = System.currentTimeMillis();
 
+			int endTime = context.modelParameters.getEndTime();
+			
 			int unsuspectibleCheck  = context.totalPopulation.currentUnsusceptible + context.observedPopulation.currentUnsusceptible;
 			int populationSizeCheck = context.totalPopulation.currentPopulationSize;
 
@@ -52,19 +53,13 @@ public class Scheduler
 					                                        + context.totalPopulation.totallyRecovered	+ ", " 
 					                                        + context.totalPopulation.totallyDead  
 					                                        + "\r\nPersons:" + context.observedPopulation.persons.size());
-/*					context.observedPopulation.personsList.forEach( (Object obj) ->
-					{
-						AgentPerson p = (AgentPerson)obj;
-						System.out.print(p.id + ":" + p.state + "; ");
-						return true;
-					});
-*/					
+
 				}
 				
 			}
 			
 			return "<html>Simulation time: " + (System.currentTimeMillis() - start) + "<br>"  +
-				    "Population size: " + Context.observedPopulation.persons.size() + "</html>";
+				    "Population size: " + context.observedPopulation.persons.size() + "</html>";
 		}
 		catch(Throwable t)
 		{

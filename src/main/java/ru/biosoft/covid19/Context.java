@@ -2,24 +2,33 @@ package ru.biosoft.covid19;
 
 public class Context 
 {
-	static AgentImport            	arrived            = new AgentImport();
-	static AgentDisease            	disease            = new AgentDisease();
-	static AgentHealthcareSystem   	healthcareSystem   = new AgentHealthcareSystem();
-	static AgentObservedPopulation 	observedPopulation;
-	static AgentTotalPopulation    	totalPopulation;
-	static AgentStatCounter        	statCounter        = new AgentStatCounter(); 		  	
-	static AgentPlot			   	plot               = new AgentPlot();
+	AgentImport            	arrived;
+	AgentDisease           	disease;
+	AgentHealthcareSystem  	healthcareSystem;
+	AgentObservedPopulation	observedPopulation;
+	AgentTotalPopulation   	totalPopulation;
+
+	RealData				realData;
+	AgentStatCounter       	statCounter; 		  	
+	AgentPlot			   	plot;
 	
-	static Scheduler 			   	scheduler          = new Scheduler();
-	static ModelParameters			modelParameters    = new ModelParameters();
-	static RealData					realData           = new RealData();
+	Scheduler 			   	scheduler;
+
+	ModelParameters			modelParameters = new ModelParameters();
 	
 	public void init()
 	{
-		Context.totalPopulation =  new AgentTotalPopulation();
-		totalPopulation.init(this);
+		scheduler = new Scheduler();
 		
-		Context.observedPopulation = new AgentObservedPopulation();
-		observedPopulation.init(this);
+		arrived = new AgentImport();							arrived.init(this);
+		disease = new AgentDisease();							disease.init(this); 
+		healthcareSystem = new AgentHealthcareSystem();		  	healthcareSystem.init(this);
+
+		totalPopulation =  new AgentTotalPopulation();			totalPopulation.init(this);
+		observedPopulation = new AgentObservedPopulation();		observedPopulation.init(this);
+
+		realData = new RealData();								realData.init(this);
+		statCounter = new AgentStatCounter();			       	statCounter.init(this); 		  	
+		plot = new AgentPlot();									plot.init(this);			
 	}
 }

@@ -3,7 +3,7 @@ package ru.biosoft.covid19;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class AgentStatCounter 
+public class AgentStatCounter extends Agent
 {
 	protected ArrayList<HashMap> dayValues = new ArrayList<>(); 
 	protected HashMap<String, Double> dailyMap = new HashMap<>();
