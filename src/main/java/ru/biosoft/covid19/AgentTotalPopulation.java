@@ -102,12 +102,14 @@ public class AgentTotalPopulation
 	{
 		AgentPerson person = new AgentPerson();
 
-		if( Random.getUniform() < (double)currentHealthy/currentPopulationSize )
+		double availablePopulation = currentHealthy + currentUnsusceptible + totallyRecovered; 
+		double pHealthy   = currentHealthy/availablePopulation;
+		double random = Random.getUniform();
+		
+		if( random < pHealthy )
 			person.state = AgentPerson.HEALTHY;
-		else if( Random.getUniform() < (double)currentUnsusceptible/currentPopulationSize )
-			person.state = AgentPerson.UNSUSCEPTIBLE;
 		else
-			person.state = AgentPerson.RECOVERED;
+			person.state = AgentPerson.UNSUSCEPTIBLE;	// RECOVERED person we also consider here as UNSUSCEPTIBLE  
 		
 		person.age    = Context.modelParameters.ageDistribution.generateAge(); 
 		person.isMale = (5 <= Random.getUniform(1, 10));
